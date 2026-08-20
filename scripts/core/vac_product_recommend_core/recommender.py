@@ -190,6 +190,8 @@ def recommend_tours(
         # 只要跟团游产品，过滤掉综合流里的入口/楼层卡
         if item.get("product_type") != "GT":
             return False
+        if not ctrip_api.matches_travel_way(item, travel_way):
+            return False
         if not item.get("can_sale"):
             return False
         if budget_max is not None and _num(item.get("price")) > budget_max:

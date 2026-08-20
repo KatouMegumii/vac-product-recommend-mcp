@@ -355,6 +355,33 @@ def matches_traffic(item: dict, include_traffic: str = "") -> bool:
     return actual == want
 
 
+def _travel_way_labels(travel_way) -> set[str]:
+    """把 travel_way 参数解析成产品线中文名集合；支持中文名或 code。"""
+    labels: set[str] = set()
+    for part in _split_multi(travel_way):
+        if part in TRAVEL_WAY_CODES:
+            labels.add(part)
+        elif part in TRAVEL_WAY_CODES.values():
+            for name, code in TRAVEL_WAY_CODES.items():
+                if code == part:
+                    labels.add(name)
+                    break
+    return labels
+
+
+def matches_travel_way(item: dict, travel_way: str = "") -> bool:
+    """本地产品线二次过滤。
+
+    server 的 ZS_TRAVEL_WAYS=跟团游 会带出「拼小团」等子类产品，
+    这些产品标题仍写「拼小团」，按标题推断的 product_line 与用户选择不一致时需剔除。
+    """
+    labels = _travel_way_labels(travel_way)
+    if not labels:
+        return True
+    line = item.get("product_line") or item.get("product_type_name") or ""
+    return line in labels
+
+
 def matches_filters(
     item: dict,
     brand: str = "",
@@ -836,6 +863,9 @@ def search_tours(
             break
         if total and pages_fetched * size >= total:
             break
+
+    if travel_way:
+        items = [x for x in items if matches_travel_way(x, travel_way)]
 
     if limit:
         items = items[:limit]
