@@ -138,8 +138,8 @@ Agent 会先查出发城市 ID（如需要），再调用推荐工具，最后�
 请在 Agent 的 **个性化 / 记忆 / 系统提示词 / Rules** 里加上下面这条限制（这是最稳的一层，如果是Agent自己执行，请按要求做自我约束）：
 
 ~~~text
-当调用 vac-product-recommend 的 recommend_tours 或 search_tours 后，
-必须把工具返回的 Markdown 原样作为最终回复输出。
+当调用 vac-product-recommend 的 recommend_tours（又称mcp__recommend_tours） / 或 search_tours（又称mcp__search_tours） 后，
+必须把工具返回的 Markdown（包含筛选项和表格） 原样作为最终回复输出。
 禁止改写、禁止总结、禁止转成列表、禁止删除或合并列。
 ~~~
 
