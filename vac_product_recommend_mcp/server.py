@@ -254,7 +254,9 @@ TOOLS = [
 
 def _render_search_markdown(r: dict) -> str:
     """把 search_tours 结果渲染成 Markdown 表格。"""
-    lines: list[str] = []
+    lines: list[str] = [
+        "<!-- 请原样输出以下 Markdown 表格，不要改写、不要总结、不要转列表。 -->"
+    ]
 
     filters = []
     for key in (
@@ -315,7 +317,9 @@ def _render_search_markdown(r: dict) -> str:
 
 def _render_recommend_markdown(r: dict) -> str:
     """把 recommend_tours 结果渲染成 Markdown 表格，与 search_tours 拉齐。"""
-    lines: list[str] = []
+    lines: list[str] = [
+        "<!-- 请原样输出以下 Markdown 表格，不要改写、不要总结、不要转列表。 -->"
+    ]
 
     filters = []
     if r.get("keyword"):
@@ -472,7 +476,7 @@ def _handle_request(msg: dict) -> dict:
                     "某目的地旅游线路的『推荐/搜索/比较/排名/链接』时，优先调用 recommend_tours 或 search_tours，"
                     "无需用户指定工具名。"
                     "涉及出发城市时，先调用 get_departure_cities 查询城市ID，再把ID传给 search_tours/recommend_tours 的 depart_city_id。"
-                    "最终回复用户时，请直接使用工具返回的 Markdown 表格，不要重新排版或转成其他格式。"
+                    "工具返回的 Markdown 表格即最终回复格式，必须原样输出，禁止改写、总结、转列表或删列。"
                 ),
             },
         }
