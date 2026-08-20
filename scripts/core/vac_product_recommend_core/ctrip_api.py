@@ -58,9 +58,18 @@ TRAVEL_WAY_CODES = {
 }
 
 
+def _as_multi_text(value) -> str:
+    """把 list/tuple 参数 join 成逗号分隔字符串；字符串和标量原样转成 str。"""
+    if value is None:
+        return ""
+    if isinstance(value, (list, tuple)):
+        return ",".join(str(v) for v in value)
+    return str(value)
+
+
 def _resolve_travel_way(travel_way: str) -> str:
     """把中文名（或直接 code）解析成携程 filter code；未知值忽略并提示。"""
-    value = (travel_way or "").strip()
+    value = _as_multi_text(travel_way).strip()
     if not value:
         return ""
     if value in TRAVEL_WAY_CODES:
@@ -100,7 +109,7 @@ PROMO_CODES = {"机票用户价": "5671", "拼满返现": "5874", "717嗨玩节"
 
 def _resolve_alias(value, aliases: dict[str, str]) -> str:
     """按中文名或 code 解析；未知值忽略并提示。"""
-    v = (value or "").strip()
+    v = _as_multi_text(value).strip()
     if not v:
         return ""
     if v in aliases:
@@ -111,16 +120,17 @@ def _resolve_alias(value, aliases: dict[str, str]) -> str:
     return ""
 
 
-def _split_multi(value: str) -> list[str]:
+def _split_multi(value) -> list[str]:
+    v = _as_multi_text(value)
     return [
         p.strip()
-        for p in (value or "").replace("，", ",").replace("、", ",").split(",")
+        for p in v.replace("，", ",").replace("、", ",").split(",")
         if p.strip()
     ]
 
 
 def _resolve_days(value) -> str:
-    v = str(value or "").strip()
+    v = _as_multi_text(value).strip()
     if not v:
         return ""
     v = v.replace("天", "")
@@ -132,7 +142,7 @@ def _resolve_days(value) -> str:
 
 def _parse_days(value) -> list[str]:
     """解析天数，支持单值、区间、多选：7 / 7天 / 6-8 / 6到8天 / 6,7,8。"""
-    v = str(value or "").strip()
+    v = _as_multi_text(value).strip()
     if not v:
         return []
     v = v.replace("天", "").replace("到", "-")
@@ -302,11 +312,12 @@ def parse_date_range(departure_date: str) -> tuple[str, str]:
     return v, v
 
 
-def _parse_vendor(vendor: str) -> list[str]:
-    """供应商多选：名称或 ID，逗号/顿号分隔。"""
+def _parse_vendor(vendor) -> list[str]:
+    """供应商多选：名称或 ID，逗号/顿号分隔；支持数组。"""
+    v = _as_multi_text(vendor)
     return [
         p.strip()
-        for p in (vendor or "").replace("，", ",").replace("、", ",").split(",")
+        for p in v.replace("，", ",").replace("、", ",").split(",")
         if p.strip()
     ]
 

@@ -168,8 +168,13 @@ def recommend_tours(
         rank_by = "composite"
 
     fetch_sort = FETCH_SORT_MAP[rank_by]
+    must_tags_text = (
+        ",".join(str(v) for v in must_tags)
+        if isinstance(must_tags, (list, tuple))
+        else (must_tags or "")
+    )
     required_tags = [
-        t.strip() for t in must_tags.replace("，", ",").split(",") if t.strip()
+        t.strip() for t in must_tags_text.replace("，", ",").split(",") if t.strip()
     ]
 
     if candidate_limit and candidate_limit > 0:
