@@ -1,7 +1,12 @@
 {
   "mcpServers": {
     "vac-product-recommend": {
-      "command": "vac-product-recommend-mcp",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/KatouMegumii/vac-product-recommend-mcp",
+        "vac-product-recommend-mcp"
+      ],
       "env": {
         "CTRIP_COOKIE": "",
         "CTRIP_GUID": ""

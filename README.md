@@ -13,22 +13,32 @@
 | `search_tours` | 搜索综合列表，返回 Markdown 表格 |
 | `get_departure_cities` | 按城市名/拼音查询携程出发城市 ID |
 
-## 安装
+## 安装（推荐用 uv，不需要手动装 Python）
+
+只需先装 [uv](https://docs.astral.sh/uv/)：
 
 ```bash
-git clone https://github.com/<你的用户名>/vac-product-recommend-mcp.git
-cd vac-product-recommend-mcp
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 推荐：安装成命令
-python3 -m venv .venv
-.venv/bin/pip install .
+# Windows PowerShell
+irm https://astral.sh/uv/install.ps1 | iex
 ```
 
-安装后命令行可用：
+然后通过 git 链接安装：
 
 ```bash
-.venv/bin/vac-product-recommend-mcp
+uv tool install git+https://github.com/KatouMegumii/vac-product-recommend-mcp
 ```
+
+也可以直接运行仓库里的安装脚本：
+
+```bash
+./scripts/install.sh
+# Windows: powershell -File scripts/install.ps1
+```
+
+`uv` 会在首次运行时自动下载 Python 和依赖，目标机器不需要预装 Python。
 
 ## 客户端配置
 
@@ -38,7 +48,12 @@ python3 -m venv .venv
 {
   "mcpServers": {
     "vac-product-recommend": {
-      "command": "/绝对路径/vac-product-recommend-mcp/.venv/bin/vac-product-recommend-mcp",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/KatouMegumii/vac-product-recommend-mcp",
+        "vac-product-recommend-mcp"
+      ],
       "env": {
         "CTRIP_COOKIE": "",
         "CTRIP_GUID": ""
