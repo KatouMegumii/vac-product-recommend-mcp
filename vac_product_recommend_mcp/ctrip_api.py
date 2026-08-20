@@ -232,11 +232,11 @@ def build_filter_groups(
 
     # 单值/多值都支持：多值会合到同一个组，组内按 method 取 OR/AND
     travel_way_values = _split_multi(travel_way)
-    is_private = "私家团" in travel_way_values or "680" in travel_way_values
+    is_private_only = len(travel_way_values) == 1 and travel_way_values[0] in ("私家团", "680")
     add_cat_multi("ZS_TRAVEL_WAYS", travel_way, _resolve_travel_way)
     add_cat_multi("ZS_CTRIP_BRAND", brand, lambda v: _resolve_alias(v, BRAND_CODES))
-    # 私家团本身独立成团，人数筛选不精准；命中私家团且用户指定人数时，不传 team_size
-    if not (is_private and bool(team_size)):
+    # 仅当“只有私家团”时，人数筛选不精准，不传 team_size；多项含私家团仍正常传
+    if not (is_private_only and bool(team_size)):
         add_cat_multi("ZS_TEAM_SIZE", team_size, lambda v: _resolve_alias(v, TEAM_SIZE_CODES))
     add_cat_multi("ZS_VEHICLE", vehicle, lambda v: _resolve_alias(v, VEHICLE_CODES))
     add_cat_multi("ZS_SUIT_PERSON", suit_person, lambda v: _resolve_alias(v, SUIT_PERSON_CODES))
