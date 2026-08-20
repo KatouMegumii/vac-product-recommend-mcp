@@ -1,5 +1,5 @@
 ---
-name: vac-product-recommend
+name: vac-product-tools
 description: 携程跟团游/拼小团/私家团/邮轮/自由行/定制游等旅游产品搜索与推荐。当用户要「找/推荐/搜索/比较/看看」携程的旅游产品线路、按点评/销量/价格/钻级/天数/出发城市等条件筛选，或询问携程出发城市ID、筛选枚举值时使用。
 user-invocable: false
 ---
@@ -54,21 +54,22 @@ Cookie 由 scripts/cookie_manager.py 校验，由 scripts/auto-cookie.js 获取/
 
 ### Cookie 缺失或失效时
 
-1. 提醒用户会打开浏览器窗口完成携程登录
+1. 提醒用户会打开一个独立的 Chrome 窗口（持久化 profile 在 scripts/.chrome-profile/）。
 2. 运行：
 
 ~~~bash
 node scripts/auto-cookie.js
 ~~~
 
-3. 根据输出判断：
+3. 让用户在**刚打开的窗口里**点击右上角「登录」完成登录；登录成功页面回到 m.ctrip.com 后脚本会自动检测并继续。不要在用户自己日常使用的 Chrome 里登录，那不会写入本脚本的 profile。
+4. 根据输出判断：
    - COOKIE_SAVED_OK：重新执行原查询
    - COOKIE_STILL_VALID：重新执行原查询
    - 缺少 puppeteer-core：在 scripts/ 目录执行 npm install 后重试
    - 未找到浏览器：改用下面的手动方式
    - 网络错误：先确认网络可用
 
-4. 手动兜底：
+5. 手动兜底：
 
 ~~~bash
 python3 scripts/update_cookie.py "<完整Cookie字符串>"

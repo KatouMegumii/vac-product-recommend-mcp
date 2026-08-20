@@ -25,8 +25,9 @@ const { execSync } = require('child_process');
 const COOKIE_FILE = process.env.CTRIP_COOKIE_FILE || path.join(__dirname, 'cookie.txt');
 const USER_DATA_DIR = path.join(__dirname, '.chrome-profile');
 
-// 登录入口：携程公网登录页（m.ctrip.com 的账号体系）
-const LOGIN_PAGE = 'https://passport.ctrip.com/user/login';
+// 登录入口：从 m.ctrip.com 进入登录。w_tuid（登录态）是 m.ctrip.com 的 host-only Cookie，
+// 只有登录流程把 returnUrl 指回 m.ctrip.com 时才会写入；直接开 passport 登录页无法保证落地到 m.ctrip.com。
+const LOGIN_PAGE = 'https://m.ctrip.com/';
 
 // 初步判断：登录态关键字段（最终以真实接口校验为准）
 const REQUIRED_COOKIES = ['w_tuid'];
@@ -201,7 +202,8 @@ function saveCookie(cookieString) {
 }
 
 /**
- * 轮询等待登录完成：CDP 读取 Cookie（含 HttpOnly），出现 GUID 且真实校验通过即成功
+ * 轮询等待登录完成：CDP 读取 Cookie（含 HttpOnly），出现 w_tuid 即认为登录成功。
+ * 接口真实校验延后到登录检测之后，避免校验失败时卡在循环里不推进。
  */
 async function waitForLogin(page) {
   const deadline = Date.now() + LOGIN_TIMEOUT_MS;
@@ -218,14 +220,17 @@ async function waitForLogin(page) {
     const names = new Set(cookies.map((c) => c.name));
     if (names.has('w_tuid')) {
       const cookieString = cookies.map((c) => `${c.name}=${c.value}`).join('; ');
-      const check = await checkCookieValid(cookieString);
-      if (check.valid) {
-        return { cookies, cookieString };
-      }
+      // 与参考实现一致：循环里只做「登录态字段是否出现」的本地判断，
+      // 不再在这里调真实接口。接口校验放到检测到登录之后单独做，避免
+      // 校验失败时既不返回也不报原因，看起来像一直卡在监控。
+      return { cookies, cookieString };
     }
 
     if (Date.now() - lastHintAt > 15000) {
-      console.log('⏳ 等待登录中…请在打开的浏览器窗口里完成携程登录（手机号/验证码等，已有登录态会自动完成）');
+      const currentUrl = page.url().split(/[?#]/)[0];
+      console.log('⏳ 等待登录中…请在打开的携程页面点击右上角「登录」，完成手机号/验证码登录（或扫码登录）。');
+      console.log(`   当前页面：${currentUrl}`);
+      console.log(`   登录态检测：${names.has('w_tuid') ? '已发现 w_tuid' : '尚未发现 w_tuid（未检测到登录态）'}`);
       lastHintAt = Date.now();
     }
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
@@ -273,7 +278,8 @@ async function main() {
   }
 
   console.log(`🔍 找到浏览器: ${browserPath}`);
-  console.log('🚀 正在打开浏览器窗口，请在其中完成携程登录…');
+  console.log('🚀 正在打开携程 m.ctrip.com…请在打开的页面右上角点击「登录」，完成手机号/验证码登录（或扫码登录）。');
+  console.log('   登录成功后页面会回到 m.ctrip.com，脚本会自动检测到并继续。');
 
   let browser;
   try {
@@ -299,7 +305,7 @@ async function main() {
     const page = pages[0] || (await browser.newPage());
 
     await page.goto(LOGIN_PAGE, { waitUntil: 'networkidle2', timeout: 60000 }).catch(() => {
-      console.log('⚠️ 页面加载超时或失败。请确认网络可用，并可直接在该窗口手动访问 m.ctrip.com 登录');
+      console.log('⚠️ 页面加载超时或失败。请确认网络可用，并在打开的页面里点击「登录」完成登录');
     });
 
     const { cookieString } = await waitForLogin(page);
