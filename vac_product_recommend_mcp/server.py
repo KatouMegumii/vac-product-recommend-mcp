@@ -53,8 +53,8 @@ TOOLS = [
                 },
                 "min_score": {
                     "type": "number",
-                    "description": "最低点评分，默认4.0",
-                    "default": 4.0,
+                    "description": "最低点评分，仅当用户要求『评分/好评优先』时才设置；默认0表示不过滤。人数请用 team_size，不要用本参数",
+                    "default": 0,
                 },
                 "min_sold": {
                     "type": "number",
@@ -411,7 +411,7 @@ def _call_tool(name: str, args: dict) -> dict:
             requirement=str(args.get("requirement", "")),
             depart_city_id=str(args.get("depart_city_id", "2")),
             budget_max=args.get("budget_max"),
-            min_score=float(args.get("min_score", 4.0)),
+            min_score=float(args.get("min_score", 0.0)),
             min_sold=float(args.get("min_sold", 0.0)),
             page_size=int(args.get("page_size", 15)),
             max_pages=int(args.get("max_pages", 2)),
@@ -490,6 +490,7 @@ def _handle_request(msg: dict) -> dict:
                     "当用户给出出发日和返程日时，计算游玩天数并传给 days：天数 = 返程日 - 出发日 + 1，传精确单值。"
                     "用户说『不含往返交通/不含大交通/当地参团』时，用 vehicle 参数，不要用 include_traffic。"
                     "用户只说人数时，只设置 team_size，不要推断 travel_way=私家团。"
+                    "min_score 与人数无关；用户没要求评分/好评时不要传 min_score。"
                     "工具返回的 Markdown 表格即最终回复格式，必须原样输出，禁止改写、总结、转列表或删列。"
                 ),
             },

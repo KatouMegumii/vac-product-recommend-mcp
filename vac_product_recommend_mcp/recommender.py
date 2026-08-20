@@ -142,7 +142,7 @@ def recommend_tours(
     requirement: str = "",
     depart_city_id: str = "2",
     budget_max: float | None = None,
-    min_score: float = 4.0,
+    min_score: float = 0.0,
     min_sold: float = 0.0,
     page_size: int = 15,
     max_pages: int = 2,
