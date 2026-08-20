@@ -160,6 +160,7 @@ def recommend_tours(
     days: str = "",
     departure_date: str = "",
     vendor: str = "",
+    include_traffic: str = "",
     candidate_limit: int = 0,
 ) -> dict:
     """在综合列表里抓取、过滤、按指定规则排序，返回 TopN 产品信息和链接。"""
@@ -195,6 +196,8 @@ def recommend_tours(
         if not _must_tags_ok(item, required_tags):
             return False
         if not ctrip_api.matches_vendor(item, ctrip_api._parse_vendor(vendor)):
+            return False
+        if not ctrip_api.matches_traffic(item, include_traffic):
             return False
         return True
 
@@ -297,6 +300,7 @@ def recommend_tours(
             "days": days,
             "departure_date": departure_date,
             "vendor": vendor,
+            "include_traffic": include_traffic,
         },
         "candidate_limit": candidate_limit,
         "top_n": top_n,

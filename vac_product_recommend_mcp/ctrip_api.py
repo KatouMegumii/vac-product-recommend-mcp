@@ -321,6 +321,25 @@ def matches_vendor(item: dict, tokens: list[str]) -> bool:
     return False
 
 
+def _parse_bool_like(value: str) -> bool | None:
+    """把 是/否/含/不含/true/false 等转成布尔；无法识别返回 None。"""
+    v = (value or "").strip().lower()
+    if v in ("是", "含", "true", "1", "yes", "y"):
+        return True
+    if v in ("否", "不含", "false", "0", "no", "n"):
+        return False
+    return None
+
+
+def matches_traffic(item: dict, include_traffic: str = "") -> bool:
+    """本地过滤是否含往返交通。"""
+    want = _parse_bool_like(include_traffic)
+    if want is None:
+        return True
+    actual = (item.get("round_trip_traffic") or "否") == "是"
+    return actual == want
+
+
 def matches_filters(
     item: dict,
     brand: str = "",
@@ -702,6 +721,7 @@ def search_tours(
     days: str = "",
     departure_date: str = "",
     vendor: str = "",
+    include_traffic: str = "",
 ) -> dict:
     """搜索综合列表，返回归一化结果。
 
@@ -709,7 +729,7 @@ def search_tours(
     limit=0 时按 page/page_size 单页查询（向后兼容）。
     """
     vendor_tokens = _parse_vendor(vendor)
-    has_local_vendor = bool(vendor_tokens)
+    has_local = bool(vendor_tokens) or (_parse_bool_like(include_traffic) is not None)
 
     if limit and limit > 0:
         size, _ = paging_plan(limit)
@@ -717,10 +737,10 @@ def search_tours(
         start_page = 1
     else:
         size = page_size
-        target = page_size if has_local_vendor else 0
+        target = page_size if has_local else 0
         start_page = page
 
-    max_scan_pages = 40 if (has_local_vendor or limit) else 1
+    max_scan_pages = 40 if (has_local or limit) else 1
 
     # 用前端真实格式（嵌套分组）构造筛选，多组之间是 AND。
     api_filter_items = build_filter_groups(
@@ -757,8 +777,13 @@ def search_tours(
 
         total = info.get("total")
         page_items = [normalize_product(x) for x in products]
-        if has_local_vendor:
-            page_items = [x for x in page_items if matches_vendor(x, vendor_tokens)]
+        if has_local:
+            page_items = [
+                x
+                for x in page_items
+                if matches_vendor(x, vendor_tokens)
+                and matches_traffic(x, include_traffic)
+            ]
         items.extend(page_items)
         pages_fetched += 1
 
@@ -790,6 +815,7 @@ def search_tours(
         "days": days,
         "departure_date": departure_date,
         "vendor": vendor,
+        "include_traffic": include_traffic,
         "filters": api_filter_items,
         "begin_date": begin_date,
         "end_date": end_date,

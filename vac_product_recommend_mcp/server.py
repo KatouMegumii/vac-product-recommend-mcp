@@ -130,6 +130,11 @@ TOOLS = [
                     "type": "string",
                     "description": "供应商名称或ID，可多选（逗号分隔），名称支持模糊匹配，例如：随程国旅假期,2256920",
                 },
+                "include_traffic": {
+                    "type": "string",
+                    "enum": ["是", "否"],
+                    "description": "是否含往返大交通：是=含往返交通，否=不含往返交通",
+                },
                 "candidate_limit": {
                     "type": "integer",
                     "description": "候选池上限，会自动分页（例：50 会拆成 25×2）。不传则用 page_size × max_pages。",
@@ -208,6 +213,11 @@ TOOLS = [
                 "vendor": {
                     "type": "string",
                     "description": "供应商名称或ID，可多选（逗号分隔），名称支持模糊匹配，例如：随程国旅假期,2256920",
+                },
+                "include_traffic": {
+                    "type": "string",
+                    "enum": ["是", "否"],
+                    "description": "是否含往返大交通：是=含往返交通，否=不含往返交通",
                 },
                 "limit": {
                     "type": "integer",
@@ -405,6 +415,7 @@ def _call_tool(name: str, args: dict) -> dict:
             days=str(args.get("days", "")),
             departure_date=str(args.get("departure_date", "")),
             vendor=str(args.get("vendor", "")),
+            include_traffic=str(args.get("include_traffic", "")),
             candidate_limit=int(args.get("candidate_limit", 0)),
         )
         return _render_recommend_markdown(result)
@@ -428,6 +439,7 @@ def _call_tool(name: str, args: dict) -> dict:
             days=str(args.get("days", "")),
             departure_date=str(args.get("departure_date", "")),
             vendor=str(args.get("vendor", "")),
+            include_traffic=str(args.get("include_traffic", "")),
             limit=int(args.get("limit", 0)),
         )
         return _render_search_markdown(result)

@@ -93,6 +93,7 @@ uv tool install git+https://github.com/KatouMegumii/vac-product-recommend-mcp
 | `days` | 天数，支持 `6-8` / `6,7,8` / `7` |
 | `departure_date` | 出发日期 |
 | `vendor` | 供应商名称或 ID，多选，名称模糊匹配 |
+| `include_traffic` | 是否含往返大交通：`是` / `否` |
 | `budget_max` | 预算上限 |
 | `top_n` | 推荐数量 |
 | `candidate_limit` | 候选池上限，自动翻页凑够匹配数 |
