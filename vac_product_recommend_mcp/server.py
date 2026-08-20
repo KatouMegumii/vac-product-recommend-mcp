@@ -125,7 +125,7 @@ TOOLS = [
                 },
                 "departure_date": {
                     "type": "string",
-                    "description": "出发日期，YYYY-MM-DD 或 YYYY-MM-DD~YYYY-MM-DD",
+                    "description": "出发日期（仅出发日，不是返程日）。格式 YYYY-MM-DD。只有用户明确说『出发日期在某段时间内』才用 YYYY-MM-DD~YYYY-MM-DD。若用户同时给了出发日和返程日，只用出发日，例如：9月25日出发、10月5日返程 → departure_date=2026-09-25",
                 },
                 "vendor": {
                     "type": "string",
@@ -209,7 +209,7 @@ TOOLS = [
                 },
                 "departure_date": {
                     "type": "string",
-                    "description": "出发日期，YYYY-MM-DD 或 YYYY-MM-DD~YYYY-MM-DD",
+                    "description": "出发日期（仅出发日，不是返程日）。格式 YYYY-MM-DD。只有用户明确说『出发日期在某段时间内』才用 YYYY-MM-DD~YYYY-MM-DD。若用户同时给了出发日和返程日，只用出发日，例如：9月25日出发、10月5日返程 → departure_date=2026-09-25",
                 },
                 "vendor": {
                     "type": "string",
@@ -486,6 +486,7 @@ def _handle_request(msg: dict) -> dict:
                     "某目的地旅游线路的『推荐/搜索/比较/排名/链接』时，优先调用 recommend_tours 或 search_tours，"
                     "无需用户指定工具名。"
                     "涉及出发城市时，先调用 get_departure_cities 查询城市ID，再把ID传给 search_tours/recommend_tours 的 depart_city_id。"
+                    "出发日期指出发日，不是返程日；只有用户明确要求出发日期区间时才用范围。"
                     "工具返回的 Markdown 表格即最终回复格式，必须原样输出，禁止改写、总结、转列表或删列。"
                 ),
             },
