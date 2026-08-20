@@ -41,7 +41,7 @@ python3 -m venv .venv
       "command": "/绝对路径/vac-product-recommend-mcp/.venv/bin/vac-product-recommend-mcp",
       "env": {
         "CTRIP_COOKIE": "",
-        "CTRIP_GUID": "09031170212851475363"
+        "CTRIP_GUID": ""
       }
     }
   }
@@ -55,7 +55,7 @@ python3 -m venv .venv
 | 变量 | 必填 | 说明 |
 |---|---|---|
 | `CTRIP_COOKIE` | 否 | 从浏览器复制的完整 cookie 串，不填也能跑（可能触发风控） |
-| `CTRIP_GUID` | 否 | 默认 `09031170212851475363` |
+| `CTRIP_GUID` | 否 | 可留空；留空时使用内置默认值 |
 | `CTRIP_W_PAYLOAD_SOURCE` | 否 | 风控签名，当前接口不强制 |
 | `CTRIP_X_CTX_WCLIENT_REQ` | 否 | 轮换 token，当前接口不强制 |
 

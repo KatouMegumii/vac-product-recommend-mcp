@@ -395,7 +395,7 @@ def _ascii_only(value: str, name: str) -> str:
 
 
 def _guid() -> str:
-    return os.environ.get("CTRIP_GUID", "09031170212851475363")
+    return os.environ.get("CTRIP_GUID") or "09031170212851475363"
 
 
 def _trace_id() -> str:

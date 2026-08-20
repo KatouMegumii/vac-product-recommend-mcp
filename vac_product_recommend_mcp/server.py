@@ -5,7 +5,7 @@
 
 环境变量：
     CTRIP_COOKIE            可选，浏览器里复制的完整 cookie 串
-    CTRIP_GUID              可选，默认 09031170212851475363
+    CTRIP_GUID              可选，留空即可
     CTRIP_W_PAYLOAD_SOURCE  可选，风控签名（当前接口不强制）
     CTRIP_X_CTX_WCLIENT_REQ 可选，轮换 token（当前接口不强制）
 """
