@@ -1,0 +1,111 @@
+# vac-product-recommend-mcp
+
+本地 **stdio** 形态的 MCP Server：按需求在携程跟团游「精选/综合」列表里搜索产品，并按
+点评分、销量、价格等维度推荐 TopN，返回统一格式的 Markdown 表格（含网页端 / 移动端链接）。
+
+纯 Python 标准库实现，**无需第三方依赖**，Python 3.10+ 即可运行。
+
+## 提供的工具
+
+| 工具 | 作用 |
+|---|---|
+| `recommend_tours` | 按关键词 + 多条件筛选，返回销量与点评俱佳的 TopN 产品 |
+| `search_tours` | 搜索综合列表，返回 Markdown 表格 |
+| `get_departure_cities` | 按城市名/拼音查询携程出发城市 ID |
+
+## 安装
+
+```bash
+git clone https://github.com/<你的用户名>/vac-product-recommend-mcp.git
+cd vac-product-recommend-mcp
+
+# 推荐：安装成命令
+python3 -m venv .venv
+.venv/bin/pip install .
+```
+
+安装后命令行可用：
+
+```bash
+.venv/bin/vac-product-recommend-mcp
+```
+
+## 客户端配置
+
+以 Claude Desktop 为例，编辑 `claude_desktop_config.json`：
+
+```json
+{
+  "mcpServers": {
+    "vac-product-recommend": {
+      "command": "/绝对路径/vac-product-recommend-mcp/.venv/bin/vac-product-recommend-mcp",
+      "env": {
+        "CTRIP_COOKIE": "",
+        "CTRIP_GUID": "09031170212851475363"
+      }
+    }
+  }
+}
+```
+
+`config_examples/` 目录下提供了 Claude Desktop / Cursor / Cline 的示例配置。
+
+环境变量：
+
+| 变量 | 必填 | 说明 |
+|---|---|---|
+| `CTRIP_COOKIE` | 否 | 从浏览器复制的完整 cookie 串，不填也能跑（可能触发风控） |
+| `CTRIP_GUID` | 否 | 默认 `09031170212851475363` |
+| `CTRIP_W_PAYLOAD_SOURCE` | 否 | 风控签名，当前接口不强制 |
+| `CTRIP_X_CTX_WCLIENT_REQ` | 否 | 轮换 token，当前接口不强制 |
+
+## 主要参数
+
+### recommend_tours / search_tours
+
+| 参数 | 说明 |
+|---|---|
+| `keyword` | 目的地/主题，如「土耳其」「广西」 |
+| `depart_city_id` | 出发城市 ID，先用 `get_departure_cities` 查 |
+| `travel_way` | 跟团游/拼小团/私家团/邮轮/自由行/定制游等，可多选 |
+| `brand` | 品牌，如自营 |
+| `level` | 钻级，如 5钻 |
+| `team_size` | 团队规模 |
+| `vehicle` | 交通方式 |
+| `service_tags` | 服务保障，多选 AND |
+| `suit_person` | 适用人群 |
+| `promo` | 优惠活动 |
+| `days` | 天数，支持 `6-8` / `6,7,8` / `7` |
+| `departure_date` | 出发日期 |
+| `vendor` | 供应商名称或 ID，多选，名称模糊匹配 |
+| `budget_max` | 预算上限 |
+| `top_n` | 推荐数量 |
+| `candidate_limit` | 候选池上限，自动翻页凑够匹配数 |
+
+## Cookie 怎么拿
+
+1. 浏览器打开携程 H5 跟团游列表（或 DevTools 切移动端模拟）。
+2. F12 → Network → 找 `graphql?queryName=productSearchInfo`。
+3. 右键 → Copy → Copy as cURL。
+4. 把 `-b '...'` 后面一整串拷进 `CTRIP_COOKIE`（原样，不要 URL 编码）。
+
+## 示例
+
+> 帮我找广西 3-5 天的自营拼小团或跟团游，要亲子友好，推荐 3 个。
+
+Agent 会先查出发城市 ID（如需要），再调用推荐工具，最后原样返回 Markdown 表格。
+
+## 目录结构
+
+```
+vac-product-recommend-mcp/
+├── vac_product_recommend_mcp/
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── server.py         # stdio MCP 协议 + 工具注册 + Markdown 渲染
+│   ├── ctrip_api.py      # 携程接口客户端 + 字段归一化 + 筛选
+│   └── recommender.py    # 评分、过滤、TopN
+├── config_examples/
+├── pyproject.toml
+└── README.md
+```

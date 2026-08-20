@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "vac-product-recommend": {
+      "command": "vac-product-recommend-mcp",
+      "env": {
+        "CTRIP_COOKIE": "",
+        "CTRIP_GUID": "09031170212851475363"
+      }
+    }
+  }
+}
