@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import html
 import json
 import sys
 
@@ -294,7 +295,8 @@ def _render_search_markdown(r: dict) -> str:
     lines.append("|---|---|---|---|---|---|---|---|---|---|---|")
 
     for item in r.get("items") or []:
-        name = _truncate(item.get("main_name") or item.get("name") or "-", 30)
+        full_name = item.get("main_name") or item.get("name") or "-"
+        name = f'<span title="{html.escape(full_name, quote=True)}">{_truncate(full_name, 30)}</span>'
         product_line = item.get("product_line") or "-"
         level = item.get("level")
         level_label = "2钻及以下" if level == "0-1-2" else (f"{level}钻" if level else "-")
@@ -363,7 +365,8 @@ def _render_recommend_markdown(r: dict) -> str:
     lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
 
     for item in r.get("recommendations") or []:
-        name = _truncate(item.get("main_name") or item.get("name") or "-", 30)
+        full_name = item.get("main_name") or item.get("name") or "-"
+        name = f'<span title="{html.escape(full_name, quote=True)}">{_truncate(full_name, 30)}</span>'
         product_line = item.get("product_line") or "-"
         level = item.get("level")
         level_label = "2钻及以下" if level == "0-1-2" else (f"{level}钻" if level else "-")
