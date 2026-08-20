@@ -40,6 +40,28 @@ uv tool install git+https://github.com/KatouMegumii/vac-product-recommend-mcp
 
 `uv` 会在首次运行时自动下载 Python 和依赖，目标机器不需要预装 Python。
 
+## 更新
+
+已安装用户按安装方式更新：
+
+~~~bash
+# 用 uv tool 安装的
+uv tool upgrade vac-product-recommend-mcp
+# 如果上面没拉到最新，强制重装：
+uv tool install --force git+https://github.com/KatouMegumii/vac-product-recommend-mcp
+
+# 克隆仓库 + pip install -e . 安装的
+cd vac-product-recommend-mcp && git pull
+~~~
+
+如果客户端配置用的是 `uvx --from git+...`，先清缓存再重启 MCP 客户端：
+
+~~~bash
+uv cache clean
+~~~
+
+更新后需要**重启 / 重连 MCP**，新的工具和 instructions 才会生效。
+
 ## 客户端配置
 
 以 Claude Desktop 为例，编辑 `claude_desktop_config.json`：
