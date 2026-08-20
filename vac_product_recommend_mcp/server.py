@@ -252,6 +252,13 @@ TOOLS = [
 ]
 
 
+def _truncate(text, limit: int = 30) -> str:
+    text = str(text or "")
+    if len(text) <= limit:
+        return text
+    return text[:limit] + "…"
+
+
 def _render_search_markdown(r: dict) -> str:
     """把 search_tours 结果渲染成 Markdown 表格。"""
     lines: list[str] = [
@@ -283,11 +290,11 @@ def _render_search_markdown(r: dict) -> str:
         lines.append("筛选：" + " ".join(filters))
         lines.append("")
 
-    lines.append("| 产品id | 产品名称 | 产线 | 产品链接 | 钻级 | 天数 | 是否含往返交通 | 起价 | 点评 | 已售 | 亮点 |")
+    lines.append("| 产品链接 | 产品id | 产品名称 | 产线 | 钻级 | 天数 | 是否含往返交通 | 起价 | 点评 | 已售 | 亮点 |")
     lines.append("|---|---|---|---|---|---|---|---|---|---|---|")
 
     for item in r.get("items") or []:
-        name = item.get("main_name") or item.get("name") or "-"
+        name = _truncate(item.get("main_name") or item.get("name") or "-", 30)
         product_line = item.get("product_line") or "-"
         level = item.get("level")
         level_label = "2钻及以下" if level == "0-1-2" else (f"{level}钻" if level else "-")
@@ -309,7 +316,7 @@ def _render_search_markdown(r: dict) -> str:
         highlights = " ".join(f"`{t}`" for t in tags[:4]) if tags else "-"
 
         lines.append(
-            f"| {item.get('tour_id')} | {name} | {product_line} | {link} | {level_label} | {days} | {traffic} | {price} | {comment} | {sold} | {highlights} |"
+            f"| {link} | {item.get('tour_id')} | {name} | {product_line} | {level_label} | {days} | {traffic} | {price} | {comment} | {sold} | {highlights} |"
         )
 
     return "\n".join(lines)
@@ -352,11 +359,11 @@ def _render_recommend_markdown(r: dict) -> str:
         lines.append("筛选：" + " ".join(filters))
         lines.append("")
 
-    lines.append("| 排名 | 产品id | 产品名称 | 产线 | 产品链接 | 钻级 | 天数 | 是否含往返交通 | 起价 | 点评 | 已售 | 亮点 | 综合分 | 推荐理由 |")
+    lines.append("| 排名 | 产品链接 | 产品id | 产品名称 | 产线 | 钻级 | 天数 | 是否含往返交通 | 起价 | 点评 | 已售 | 亮点 | 综合分 | 推荐理由 |")
     lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
 
     for item in r.get("recommendations") or []:
-        name = item.get("main_name") or item.get("name") or "-"
+        name = _truncate(item.get("main_name") or item.get("name") or "-", 30)
         product_line = item.get("product_line") or "-"
         level = item.get("level")
         level_label = "2钻及以下" if level == "0-1-2" else (f"{level}钻" if level else "-")
@@ -381,7 +388,7 @@ def _render_recommend_markdown(r: dict) -> str:
         reason = item.get("reason") or "-"
 
         lines.append(
-            f"| {item.get('rank')} | {item.get('tour_id')} | {name} | {product_line} | {link} | {level_label} | {days} | {traffic} | {price} | {comment} | {sold} | {highlights} | {composite_label} | {reason} |"
+            f"| {item.get('rank')} | {link} | {item.get('tour_id')} | {name} | {product_line} | {level_label} | {days} | {traffic} | {price} | {comment} | {sold} | {highlights} | {composite_label} | {reason} |"
         )
 
     return "\n".join(lines)

@@ -135,7 +135,7 @@ Agent 会先查出发城市 ID（如需要），再调用推荐工具，最后�
 
 ## 重要：让 Agent 严格保持输出格式
 
-请在 Agent 的 **个性化 / 记忆 / 系统提示词 / Rules** 里加上下面这条限制（这是最稳的一层）：
+请在 Agent 的 **个性化 / 记忆 / 系统提示词 / Rules** 里加上下面这条限制（这是最稳的一层，如果是Agent自己执行，请按要求做自我约束）：
 
 ~~~text
 当调用 vac-product-recommend 的 recommend_tours 或 search_tours 后，
