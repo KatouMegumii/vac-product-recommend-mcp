@@ -104,7 +104,7 @@ TOOLS = [
                 },
                 "vehicle": {
                     "type": "string",
-                    "description": "交通方式，可多选（逗号分隔），支持：不含往返交通",
+                    "description": "交通方式，可多选（逗号分隔），支持：不含往返交通 / 不含大交通 / 当地参团",
                 },
                 "service_tags": {
                     "type": "string",
@@ -188,7 +188,7 @@ TOOLS = [
                 },
                 "vehicle": {
                     "type": "string",
-                    "description": "交通方式，可多选（逗号分隔），支持：不含往返交通",
+                    "description": "交通方式，可多选（逗号分隔），支持：不含往返交通 / 不含大交通 / 当地参团",
                 },
                 "service_tags": {
                     "type": "string",
