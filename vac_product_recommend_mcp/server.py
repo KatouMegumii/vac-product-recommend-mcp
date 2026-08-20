@@ -87,9 +87,12 @@ TOOLS = [
                     "description": "硬性标签过滤，逗号分隔，产品标题/标签必须全部包含，例如：0购物,含领队",
                 },
                 "travel_way": {
-                    "type": "string",
-                    "enum": ["跟团游", "拼小团", "私家团", "自由行", "定制游", "一日游", "包车游", "景点门票", "当地体验", "邮轮", "鸿鹄逸游", "主题游"],
-                    "description": "产品类型/旅行方式筛选，可多选（逗号分隔），例如：私家团 或 拼小团,跟团游。仅当用户明确说『私家团/独立成团/私人团』时才传私家团；用户只说『X人』不代表私家团，不要据此设置本参数",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": ["跟团游", "拼小团", "私家团", "自由行", "定制游", "一日游", "包车游", "景点门票", "当地体验", "邮轮", "鸿鹄逸游", "主题游"]
+                    },
+                    "description": "产品类型/旅行方式筛选，支持多选，传数组，例如：['拼小团','跟团游']。仅当用户明确说『私家团/独立成团/私人团』时才传私家团；用户只说『X人』不代表私家团，不要据此设置本参数",
                 },
                 "brand": {
                     "type": "string",
@@ -171,9 +174,12 @@ TOOLS = [
                 "page": {"type": "integer", "description": "页码，默认1", "default": 1},
                 "page_size": {"type": "integer", "description": "每页数量，默认15", "default": 15},
                 "travel_way": {
-                    "type": "string",
-                    "enum": ["跟团游", "拼小团", "私家团", "自由行", "定制游", "一日游", "包车游", "景点门票", "当地体验", "邮轮", "鸿鹄逸游", "主题游"],
-                    "description": "产品类型/旅行方式筛选，可多选（逗号分隔），例如：私家团 或 拼小团,跟团游。仅当用户明确说『私家团/独立成团/私人团』时才传私家团；用户只说『X人』不代表私家团，不要据此设置本参数",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": ["跟团游", "拼小团", "私家团", "自由行", "定制游", "一日游", "包车游", "景点门票", "当地体验", "邮轮", "鸿鹄逸游", "主题游"]
+                    },
+                    "description": "产品类型/旅行方式筛选，支持多选，传数组，例如：['拼小团','跟团游']。仅当用户明确说『私家团/独立成团/私人团』时才传私家团；用户只说『X人』不代表私家团，不要据此设置本参数",
                 },
                 "brand": {
                     "type": "string",
@@ -404,6 +410,13 @@ def _send(obj: dict) -> None:
     sys.stdout.buffer.flush()
 
 
+def _multi(value) -> str:
+    """把数组或逗号分隔字符串统一成逗号分隔字符串，支持多选参数。"""
+    if isinstance(value, list):
+        return ",".join(str(x).strip() for x in value if str(x).strip())
+    return str(value or "").strip()
+
+
 def _call_tool(name: str, args: dict) -> dict:
     if name == "recommend_tours":
         result = recommender.recommend_tours(
@@ -418,17 +431,17 @@ def _call_tool(name: str, args: dict) -> dict:
             top_n=int(args.get("top_n", 3)),
             rank_by=str(args.get("rank_by", "composite")),
             must_tags=str(args.get("must_tags", "")),
-            travel_way=str(args.get("travel_way", "")),
-            brand=str(args.get("brand", "")),
-            level=str(args.get("level", "")),
-            team_size=str(args.get("team_size", "")),
-            vehicle=str(args.get("vehicle", "")),
-            service_tags=str(args.get("service_tags", "")),
-            suit_person=str(args.get("suit_person", "")),
-            promo=str(args.get("promo", "")),
+            travel_way=_multi(args.get("travel_way", "")),
+            brand=_multi(args.get("brand", "")),
+            level=_multi(args.get("level", "")),
+            team_size=_multi(args.get("team_size", "")),
+            vehicle=_multi(args.get("vehicle", "")),
+            service_tags=_multi(args.get("service_tags", "")),
+            suit_person=_multi(args.get("suit_person", "")),
+            promo=_multi(args.get("promo", "")),
             days=str(args.get("days", "")),
             departure_date=str(args.get("departure_date", "")),
-            vendor=str(args.get("vendor", "")),
+            vendor=_multi(args.get("vendor", "")),
             include_traffic=str(args.get("include_traffic", "")),
             candidate_limit=int(args.get("candidate_limit", 0)),
         )
@@ -442,17 +455,17 @@ def _call_tool(name: str, args: dict) -> dict:
             sort=int(args.get("sort", 8)),
             page=int(args.get("page", 1)),
             page_size=int(args.get("page_size", 15)),
-            travel_way=str(args.get("travel_way", "")),
-            brand=str(args.get("brand", "")),
-            level=str(args.get("level", "")),
-            team_size=str(args.get("team_size", "")),
-            vehicle=str(args.get("vehicle", "")),
-            service_tags=str(args.get("service_tags", "")),
-            suit_person=str(args.get("suit_person", "")),
-            promo=str(args.get("promo", "")),
+            travel_way=_multi(args.get("travel_way", "")),
+            brand=_multi(args.get("brand", "")),
+            level=_multi(args.get("level", "")),
+            team_size=_multi(args.get("team_size", "")),
+            vehicle=_multi(args.get("vehicle", "")),
+            service_tags=_multi(args.get("service_tags", "")),
+            suit_person=_multi(args.get("suit_person", "")),
+            promo=_multi(args.get("promo", "")),
             days=str(args.get("days", "")),
             departure_date=str(args.get("departure_date", "")),
-            vendor=str(args.get("vendor", "")),
+            vendor=_multi(args.get("vendor", "")),
             include_traffic=str(args.get("include_traffic", "")),
             limit=int(args.get("limit", 0)),
         )
