@@ -11,7 +11,20 @@
 |---|---|
 | `recommend_tours` | 按关键词 + 多条件筛选，返回销量与点评俱佳的 TopN 产品 |
 | `search_tours` | 搜索综合列表，返回 Markdown 表格 |
-| `get_departure_cities` | 按城市名/拼音查询携程出发城市 ID |
+| `get_filter_options` | 查询当前可用的筛选器及可选值，用于枚举映射 |
+| `get_departure_cities` | 按城市名/拼音查询携程出发城市 ID（仅需要时使用） |
+
+## 筛选枚举查询
+
+当需要把用户需求映射成具体筛选值时，先调用 `get_filter_options`：
+
+~~~json
+{ "keyword": "川西" }
+~~~
+
+返回 `fastFilters` 里的所有可选筛选组及枚举值，Agent 可据此选择，再传给 `search_tours` / `recommend_tours`。
+
+`get_departure_cities` 仅在用户提到出发城市且需要 ID 时使用；否则用默认 `depart_city_id`。
 
 ## 安装（推荐用 uv，不需要手动装 Python）
 
@@ -62,6 +75,12 @@ uv cache clean
 
 更新后需要**重启 / 重连 MCP**，新的工具和 instructions 才会生效。
 
+安装 / 更新时，如果由 Agent 操作，必须：
+
+1. 严格检查本 README 的「重要：让 Agent 严格保持输出格式」和「每次咨询完全独立」等限制是否有变化；
+2. 把最新限制同步到 Agent 的个性化 / 记忆 / Rules / 系统提示词中；
+3. 重启 / 重连 MCP 后再确认工具列表已更新。
+
 ## 客户端配置
 
 以 Claude Desktop 为例，编辑 `claude_desktop_config.json`：
@@ -103,19 +122,20 @@ uv cache clean
 | 参数 | 说明 |
 |---|---|
 | `keyword` | 目的地/主题，如「土耳其」「广西」 |
-| `depart_city_id` | 出发城市 ID，先用 `get_departure_cities` 查 |
-| `travel_way` | 跟团游/拼小团/私家团/邮轮/自由行/定制游等，可多选 |
-| `brand` | 品牌，如自营 |
-| `level` | 钻级，如 5钻 |
-| `team_size` | 团队规模 |
-| `vehicle` | 交通方式 |
-| `service_tags` | 服务保障，多选 AND |
-| `suit_person` | 适用人群 |
-| `promo` | 优惠活动 |
-| `days` | 天数，支持 `6-8` / `6,7,8` / `7` |
-| `departure_date` | 出发日期 |
+| `depart_city_id` | 出发城市 ID；仅在用户提到出发城市时用 `get_departure_cities` 查 |
+| `travel_way` | 旅行方式，多选数组：`["拼小团","跟团游"]` 等 |
+| `brand` | 品牌，如 `自营` / `携程自营`，可多选 |
+| `level` | 钻级，如 `5钻` / `4钻` / `3钻`，可多选 |
+| `team_size` | 团队规模：`最多9人` / `10-20人` / `21人及以上`；用户提到人数必须设置 |
+| `vehicle` | 交通方式：`不含往返交通` / `不含大交通` / `当地参团` |
+| `service_tags` | 服务保障，多选 AND：`0购物`、`一价全包` 等 |
+| `suit_person` | 适用人群，如 `亲子友好`、`老友会严选` |
+| `promo` | 优惠活动，如 `机票用户价`、`火车票用户价` |
+| `days` | 天数，支持 `7` / `6-8` / `6,7,8`；给出发返程日时用 `返程-出发+1` |
+| `departure_date` | 出发日期（仅出发日），格式 `YYYY-MM-DD` |
 | `vendor` | 供应商名称或 ID，多选，名称模糊匹配 |
-| `include_traffic` | 是否含往返大交通：`是` / `否` |
+| `include_traffic` | 仅当用户要「含往返交通」时传 `是`；不含请用 `vehicle` |
+| `min_score` | 最低点评分，默认 0 不过滤；与人数无关 |
 | `budget_max` | 预算上限 |
 | `top_n` | 推荐数量 |
 | `candidate_limit` | 候选池上限，自动翻页凑够匹配数 |
