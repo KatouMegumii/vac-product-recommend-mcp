@@ -121,7 +121,7 @@ TOOLS = [
                 },
                 "days": {
                     "type": "string",
-                    "description": "游玩天数，支持单值/区间/多选：7、7天、6-8、6,7,8",
+                    "description": "游玩天数，支持单值/区间/多选：7、7天、6-8、6,7,8。若用户同时给了出发日和返程日，请计算天数并传入：天数 = 返程日 - 出发日 + 1，例如 9月25日出发、10月5日返程 → days=11",
                 },
                 "departure_date": {
                     "type": "string",
@@ -205,7 +205,7 @@ TOOLS = [
                 },
                 "days": {
                     "type": "string",
-                    "description": "游玩天数，支持单值/区间/多选：7、7天、6-8、6,7,8",
+                    "description": "游玩天数，支持单值/区间/多选：7、7天、6-8、6,7,8。若用户同时给了出发日和返程日，请计算天数并传入：天数 = 返程日 - 出发日 + 1，例如 9月25日出发、10月5日返程 → days=11",
                 },
                 "departure_date": {
                     "type": "string",
@@ -487,6 +487,7 @@ def _handle_request(msg: dict) -> dict:
                     "无需用户指定工具名。"
                     "涉及出发城市时，先调用 get_departure_cities 查询城市ID，再把ID传给 search_tours/recommend_tours 的 depart_city_id。"
                     "出发日期指出发日，不是返程日；只有用户明确要求出发日期区间时才用范围。"
+                    "当用户给出出发日和返程日时，计算游玩天数并传给 days：天数 = 返程日 - 出发日 + 1。"
                     "工具返回的 Markdown 表格即最终回复格式，必须原样输出，禁止改写、总结、转列表或删列。"
                 ),
             },
