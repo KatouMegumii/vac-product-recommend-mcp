@@ -421,6 +421,18 @@ def _guid() -> str:
     return os.environ.get("CTRIP_GUID") or "09031170212851475363"
 
 
+def _read_cookie_file() -> str:
+    """从 CTRIP_COOKIE_FILE 指向的 cookie.txt 读取 cookie（供技能 cookie 管理器使用）。"""
+    path = os.environ.get("CTRIP_COOKIE_FILE", "").strip()
+    if not path:
+        return ""
+    try:
+        with open(path, encoding="utf-8") as f:
+            return f.read().strip()
+    except OSError:
+        return ""
+
+
 def _trace_id() -> str:
     return f"{_guid()}-{int(time.time() * 1000)}-{random.randint(1000000, 9999999)}"
 
@@ -445,7 +457,10 @@ def _headers(keyword: str) -> dict[str, str]:
         "x-ctx-currency": "CNY",
     }
 
-    cookie = _ascii_only(os.environ.get("CTRIP_COOKIE", ""), "CTRIP_COOKIE")
+    cookie = _ascii_only(
+        os.environ.get("CTRIP_COOKIE", "") or _read_cookie_file(),
+        "CTRIP_COOKIE",
+    )
     if cookie:
         headers["cookie"] = cookie
 
@@ -601,8 +616,21 @@ def _post_graphql(
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
-    with request.urlopen(req, timeout=25, context=ctx) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    try:
+        with request.urlopen(req, timeout=25, context=ctx) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except request.HTTPError as exc:
+        body = ""
+        try:
+            body = exc.read().decode("utf-8", errors="replace")[:500]
+        except OSError:
+            pass
+        if exc.code in (401, 403) or "login" in body.lower() or "风控" in body:
+            raise RuntimeError(
+                f"接口返回 {exc.code}，Cookie 可能已失效或被风控。"
+                "请按技能「Cookie 管理」流程刷新 Cookie（scripts/auto-cookie.js 或手动粘贴 update_cookie.py）。"
+            ) from exc
+        raise RuntimeError(f"接口请求失败 HTTP {exc.code}: {body}") from exc
 
 
 def _first_image(basic: dict) -> str:

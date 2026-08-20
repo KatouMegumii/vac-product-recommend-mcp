@@ -1,0 +1,4 @@
+# Cookie 与本地登录态（绝不提交）
+cookie.txt
+.chrome-profile/
+node_modules/

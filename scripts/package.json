@@ -1,0 +1,15 @@
+{
+  "name": "vac-product-recommend-scripts",
+  "version": "1.0.0",
+  "description": "vac-product-recommend 技能的 Cookie 管理脚本（auto-cookie.js 浏览器自动获取）",
+  "main": "auto-cookie.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "puppeteer-core": "^25.5.0"
+  }
+}
