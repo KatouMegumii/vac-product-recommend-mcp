@@ -6,7 +6,7 @@ user-invocable: false
 
 # 携程旅游产品搜索与推荐（直接脚本版）
 
-本技能通过内置 Python 脚本直接完成携程跟团游「精选/综合」列表的产品搜索与 TopN 推荐，不依赖 MCP 注册。核心能力由 scripts/mcp 中的 vac-product-recommend-mcp 提供，通过 scripts/run.py 统一调用。
+本技能通过内置 Python 脚本直接完成携程跟团游「精选/综合」列表的产品搜索与 TopN 推荐。核心能力由 scripts/core 中的 vac_product_recommend_core 提供，通过 scripts/run.py 统一调用。
 
 ## 执行方式（优先）
 

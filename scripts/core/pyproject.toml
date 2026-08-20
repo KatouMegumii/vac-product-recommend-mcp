@@ -11,4 +11,4 @@ dependencies = []
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["vac_product_recommend_mcp*"]
+include = ["vac_product_recommend_core*"]

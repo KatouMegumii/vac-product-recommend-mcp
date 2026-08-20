@@ -1,4 +1,4 @@
-"""Markdown 渲染：供直接脚本入口 run.py 使用，不依赖 MCP。"""
+"""Markdown 渲染：供直接脚本入口 run.py 使用。"""
 
 from __future__ import annotations
 

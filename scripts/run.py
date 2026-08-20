@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""vac-product-recommend 直接脚本入口：内置 cookie 校验 + 工具分发（无 MCP）。
+"""vac-product-recommend 直接脚本入口：内置 cookie 校验 + 工具分发（纯脚本）。
 
 用法：
     python3 scripts/run.py --tool recommend_tours --json '{"keyword":"川西"}'
@@ -22,10 +22,10 @@ import os
 import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(SCRIPT_DIR, "mcp"))
+sys.path.insert(0, os.path.join(SCRIPT_DIR, "core"))
 
 import cookie_manager
-from vac_product_recommend_mcp import ctrip_api, recommender, render
+from vac_product_recommend_core import ctrip_api, recommender, render
 
 TOOLS = {
     "recommend_tours",
