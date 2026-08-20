@@ -3,14 +3,11 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "vac-product-recommend-mcp"
+name = "vac-product-recommend-core"
 version = "0.1.0"
-description = "本地 stdio MCP：按需求在携程跟团游/私家团/拼小团/邮轮等综合列表里搜索并推荐产品"
+description = "携程跟团游/私家团/拼小团/邮轮等综合列表搜索与推荐核心库（供脚本直接调用）"
 requires-python = ">=3.10"
 dependencies = []
-
-[project.scripts]
-vac-product-recommend-mcp = "vac_product_recommend_mcp.server:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

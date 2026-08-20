@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""vac-product-recommend 直接脚本入口：内置 cookie 校验 + 工具分发。
+"""vac-product-recommend 直接脚本入口：内置 cookie 校验 + 工具分发（无 MCP）。
 
 用法：
     python3 scripts/run.py --tool recommend_tours --json '{"keyword":"川西"}'
@@ -25,7 +25,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(SCRIPT_DIR, "mcp"))
 
 import cookie_manager
-from vac_product_recommend_mcp import server
+from vac_product_recommend_mcp import ctrip_api, recommender, render
 
 TOOLS = {
     "recommend_tours",
@@ -33,6 +33,27 @@ TOOLS = {
     "get_filter_options",
     "get_departure_cities",
 }
+
+
+def _run_tool(tool: str, params: dict):
+    if tool == "recommend_tours":
+        result = recommender.recommend_tours(**params)
+        return render.render_recommend_markdown(result)
+
+    if tool == "search_tours":
+        result = ctrip_api.search_tours(**params)
+        return render.render_search_markdown(result)
+
+    if tool == "get_filter_options":
+        return ctrip_api.get_filter_options(keyword=str(params.get("keyword", "")))
+
+    if tool == "get_departure_cities":
+        return ctrip_api.get_departure_cities(
+            keyword=str(params.get("keyword", "")),
+            limit=int(params.get("limit", 20)),
+        )
+
+    raise ValueError(f"未知工具: {tool}")
 
 
 def main() -> int:
@@ -44,10 +65,9 @@ def main() -> int:
     cookie = cookie_manager.load_cookie()
     check = cookie_manager.check_cookie_valid(cookie)
     if not check["valid"]:
-        print(f"COOKIE_INVALID\t{check['reason']}\t{check['detail']}")
+        print(f"COOKIE_INVALID	{check['reason']}	{check['detail']}")
         return 2
 
-    # 注入 Cookie，供 ctrip_api 使用（优先级高于文件）
     os.environ["CTRIP_COOKIE"] = cookie
     os.environ.setdefault("CTRIP_COOKIE_FILE", cookie_manager.COOKIE_FILE)
 
@@ -55,15 +75,15 @@ def main() -> int:
         try:
             params = json.loads(args.json_args)
         except json.JSONDecodeError as exc:
-            print(f"BAD_JSON\t{exc}")
+            print(f"BAD_JSON	{exc}")
             return 3
     else:
         params = {}
 
     try:
-        result = server._call_tool(args.tool, params)
+        result = _run_tool(args.tool, params)
     except Exception as exc:  # noqa: BLE001
-        print(f"TOOL_ERROR\t{exc}")
+        print(f"TOOL_ERROR	{exc}")
         return 4
 
     if isinstance(result, str):
