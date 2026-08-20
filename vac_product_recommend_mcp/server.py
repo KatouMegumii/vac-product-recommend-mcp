@@ -235,6 +235,23 @@ TOOLS = [
         },
     },
     {
+        "name": "get_filter_options",
+        "description": (
+            "查询携程综合列表当前可用的筛选器及可选值（fastFilters）。"
+            "当需要把用户需求映射成具体筛选参数/枚举时，先调用本工具获取可选值，再调用 search_tours 或 recommend_tours。"
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "keyword": {
+                    "type": "string",
+                    "description": "目的地/主题关键词，例如：川西、土耳其",
+                },
+            },
+            "required": ["keyword"],
+        },
+    },
+    {
         "name": "get_departure_cities",
         "description": (
             "查询携程出发城市ID。当用户提到某出发城市（如上海、北京、合肥）时，"
@@ -471,6 +488,9 @@ def _call_tool(name: str, args: dict) -> dict:
         )
         return _render_search_markdown(result)
 
+    if name == "get_filter_options":
+        return ctrip_api.get_filter_options(keyword=str(args.get("keyword", "")))
+
     if name == "get_departure_cities":
         return ctrip_api.get_departure_cities(
             keyword=str(args.get("keyword", "")),
@@ -505,6 +525,7 @@ def _handle_request(msg: dict) -> dict:
                     "用户提到人数（如4人、6人、8人）时，必须设置 team_size，例如 4人→最多9人；不要推断 travel_way=私家团。"
                     "min_score 与人数无关；用户没要求评分/好评时不要传 min_score。"
                     "工具返回的 Markdown 表格即最终回复格式，必须原样输出，禁止改写、总结、转列表或删列。"
+                    "当需要把用户需求映射成筛选枚举时，先调用 get_filter_options 获取可选值，再调用 search_tours/recommend_tours。"
                 ),
             },
         }

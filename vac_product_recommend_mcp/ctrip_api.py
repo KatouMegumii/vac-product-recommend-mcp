@@ -829,6 +829,63 @@ def search_tours(
     }
 
 
+def _norm_filter_items(items) -> list[dict]:
+    out = []
+    for it in items or []:
+        ex = it.get("extras") or {}
+        out.append(
+            {
+                "code": it.get("type"),
+                "name": it.get("name"),
+                "value_type": ex.get("VALUE_TYPE"),
+                "short_code": ex.get("SHORT_CODE"),
+                "method": ex.get("FILTER_METHOD"),
+            }
+        )
+    return out
+
+
+def get_filter_options(keyword: str = "") -> dict:
+    """返回综合列表当前可用的筛选器及可选值（fastFilters），供 Agent 做枚举映射。"""
+    raw = _post_graphql(keyword or "", "2", "126", 8, 1, 1)
+    info = raw.get("data", {}).get("productSearchInfo", {})
+    fast = info.get("fastFilters") or []
+    groups: list[dict] = []
+
+    def walk(node):
+        if isinstance(node, dict):
+            name = node.get("name")
+            items = node.get("items")
+            values = node.get("values")
+            if name and items:
+                groups.append(
+                    {
+                        "group": node.get("type"),
+                        "name": name,
+                        "method": node.get("method") or (node.get("extras") or {}).get("FILTER_METHOD"),
+                        "items": _norm_filter_items(items),
+                    }
+                )
+            elif name and values:
+                groups.append(
+                    {
+                        "group": node.get("type"),
+                        "name": name,
+                        "values": values,
+                        "value_type": (node.get("extras") or {}).get("VALUE_TYPE"),
+                    }
+                )
+            for v in node.values():
+                if isinstance(v, (dict, list)):
+                    walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    walk(fast)
+    return {"keyword": keyword, "groups": groups}
+
+
 def get_departure_cities(keyword: str = "", limit: int = 20) -> dict:
     """按关键词查询携程出发城市 ID，支持中文名/拼音/英文名。"""
     kw = (keyword or "").strip()
