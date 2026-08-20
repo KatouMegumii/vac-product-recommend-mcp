@@ -32,8 +32,8 @@ const LOGIN_PAGE = 'https://m.ctrip.com/';
 // 初步判断：登录态关键字段（最终以真实接口校验为准）
 const REQUIRED_COOKIES = ['w_tuid'];
 
-// 等待用户登录的最长时间
-const LOGIN_TIMEOUT_MS = 10 * 60 * 1000;
+// 检测式等待：每 2 秒查一次 w_tuid，命中立即返回；2 分钟仅作为最长兜底超时
+const LOGIN_TIMEOUT_MS = 2 * 60 * 1000;
 const POLL_INTERVAL_MS = 2000;
 
 /**
@@ -228,9 +228,9 @@ async function waitForLogin(page) {
 
     if (Date.now() - lastHintAt > 15000) {
       const currentUrl = page.url().split(/[?#]/)[0];
-      console.log('⏳ 等待登录中…请在打开的携程页面点击右上角「登录」，完成手机号/验证码登录（或扫码登录）。');
+      console.log('⏳ 正在检测登录态…请在打开的携程页面点击右上角「登录」，完成手机号/验证码登录（或扫码登录）。');
       console.log(`   当前页面：${currentUrl}`);
-      console.log(`   登录态检测：${names.has('w_tuid') ? '已发现 w_tuid' : '尚未发现 w_tuid（未检测到登录态）'}`);
+      console.log('   检测频率：每 2 秒一次；检测到 w_tuid 会立即继续，最长等待 2 分钟。');
       lastHintAt = Date.now();
     }
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
@@ -332,7 +332,7 @@ async function main() {
     }
   } catch (error) {
     if (error.message === 'LOGIN_TIMEOUT') {
-      console.log('⏰ 等待登录超时（10 分钟）。请重新运行：node auto-cookie.js');
+      console.log('⏰ 等待登录超时（2 分钟）。请重新运行：node auto-cookie.js');
     } else {
       console.log('❌ 错误: ' + error.message);
     }
